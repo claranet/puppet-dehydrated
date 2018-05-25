@@ -8,19 +8,6 @@ class dehydrated::cron {
   }
 
   case $facts['os']['family'] {
-    'Debian': {
-      cron { 'weekly_letsencrypt':
-        ensure  => absent,
-      }
-      cron { 'weekly_dehydrated':
-        ensure  => $ensure,
-        command => "${dehydrated::bin} --accept-terms -c",
-        user    => $dehydrated::user,
-        weekday => 0,
-        hour    => 3,
-        minute  => 30,
-      }
-    }
     'FreeBSD': {
       file_line { 'weekly_dehydrated_enable':
         ensure => $ensure,
@@ -36,7 +23,18 @@ class dehydrated::cron {
       }
     }
     default: {
-      fail("Unsupported osfamily ${facts['os']['family']}")
+      cron { 'weekly_letsencrypt':
+        ensure  => absent,
+      }
+
+      cron { 'weekly_dehydrated':
+        ensure  => $ensure,
+        command => "${dehydrated::bin} --accept-terms -c",
+        user    => $dehydrated::user,
+        weekday => 0,
+        hour    => 3,
+        minute  => 30,
+      }
     }
   }
 }
